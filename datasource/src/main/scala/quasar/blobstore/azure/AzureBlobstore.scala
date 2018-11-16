@@ -33,7 +33,7 @@ import com.microsoft.rest.v2.Context
 import fs2.{Chunk, RaiseThrowable, Stream}
 import io.reactivex._
 
-class AzureBlobstore[F[_]: ConcurrentEffect: MonadResourceErr: RaiseThrowable](
+class AzureBlobstore[F[_]: ConcurrentEffect: ContextShift: MonadResourceErr: RaiseThrowable](
   containerURL: ContainerURL,
   maxQueueSize: MaxQueueSize) extends Blobstore[F] {
 

@@ -91,13 +91,16 @@ object rx {
 
   def mkAsync[F[_], A](
       observer: AsyncObserver[A], f: SingleObserver[A] => Unit)(
-      implicit F: Async[F]): F[A] =
-    F.async[A] { cb: (Either[Throwable, A] => Unit) =>
+      implicit F: Async[F], cs: ContextShift[F]): F[A] = {
+    val eff = F.async[A] { cb: (Either[Throwable, A] => Unit) =>
       observer.setCallback(cb)
       f(observer)
     }
 
-  def singleToAsync[F[_], A](
+    eff <* cs.shift
+  }
+
+  def singleToAsync[F[_]: ContextShift, A](
       single: Single[A])(
       implicit F: Async[F]): F[A] =
     F.bracket(
